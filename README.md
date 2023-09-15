@@ -71,3 +71,19 @@
 ### Open sistem
 
 [localhost:8080](http://localhost:8080)
+
+### Access container APP
+
+```bash
+
+   docker run -it -w /usr/src/app -v $(pwd):/usr/src/app -p 3000:3000 node:lts-hydrogen bash
+
+```
+
+### Access container Nginx
+
+```bash
+
+   docker run -it -p 8080:80 nginx:latest bash
+
+```

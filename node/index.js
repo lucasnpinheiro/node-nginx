@@ -1,5 +1,5 @@
-const mysql = require('mysql')
 const express = require('express')
+const mysql = require('mysql')
 const { faker } = require('@faker-js/faker')
 
 const config = {
@@ -12,30 +12,10 @@ const config = {
 const app = express()
 const port = 3000
 
-const createTable = async () => {
-   const connection = await mysql.createConnection(config)
-
-   const sql = "CREATE TABLE IF NOT EXISTS people (id INT AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY (id))"
-   await connection.query(sql)
-
-   await connection.end()
-}
-
-const insert = async () => {
-   const connection = await mysql.createConnection(config)
-
-   const name = `${faker.person.fullName()}`
-   const sqlInsert = `INSERT INTO people(name) values('${name}')`
-
-   await connection.query(sqlInsert)
-
-   await connection.end()
-}
-
-const list = async () => {
+const query = async (sql) => {
    const connection = await mysql.createConnection(config)
    const data = await new Promise((res, rej) => {
-      connection.query('SELECT name FROM people ORDER BY name ASC', (err, results) => {
+      connection.query(sql, (err, results) => {
          if (err) return rej(err);
          res(results);
       });
@@ -46,23 +26,38 @@ const list = async () => {
    return data;
 }
 
-createTable()
-insert()
+const setup = async () => {
+   await query("CREATE TABLE IF NOT EXISTS people (id INT AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY (id))")
+}
 
-app.get('/', (req, res) => {
+const insert = async () => {
+   const name = `${faker.person.fullName()}`
+   const sql = `INSERT INTO people(name) values('${name}')`
+   await query(sql)
+}
+
+const list = async () => {
+   const sql = `SELECT name FROM people ORDER BY name ASC`
+   const data = await query(sql)
+   return data;
+}
+
+setup()
+   .then(() => { })
+   .catch((err) => { console.log(err) })
+
+app.get('/', async (req, res) => {
    const print = [];
    print.push('<h1>Full Cycle Rocks!</h1>');
 
-   const result = list()
+   await insert()
+   const result = await list()
 
-   result.then((itens) => {
-      for (let item of itens) {
-         print.push(`<p>${item.name}</p>`)
-      }
+   for (let item of result) {
+      print.push(`<p>${item.name}</p>`)
+   }
 
-      res.send(print.join(''))
-   })
-
+   res.send(print.join(''))
 })
 
 
