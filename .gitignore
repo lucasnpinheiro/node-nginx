@@ -1,2 +1,2 @@
-node/node_modules
-db
+node/node_modules/*
+db/*
