@@ -1,4 +1,3 @@
-FROM  nginx:latest
+FROM  nginx:1.25.2
 COPY ./nginx.conf /etc/nginx/conf.d/nginx.conf
 RUN  rm -f /etc/nginx/conf.d/default.conf
-COPY ./public /usr/share/nginx/html/

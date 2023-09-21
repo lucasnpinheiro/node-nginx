@@ -5,15 +5,13 @@ services:
     build:
       context: ./node
     container_name: app
-    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s
-    command: ["npm", "start"]
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s sh -c "npm install && npm start"
     networks:
       - node-network
-    working_dir: /usr/src/app
+    volumes:
+      - ./node:/usr/src/app
     restart: unless-stopped
     tty: true
-    ports:
-      - "3000:3000"
     depends_on:
       - db
 
@@ -30,8 +28,6 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     networks:
       - node-network
-    ports:
-      - "3366:3366"
 
   nginx:
     build:
